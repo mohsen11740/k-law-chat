@@ -211,8 +211,8 @@ export default {
         if (env.UNITY_SERVICE && typeof env.UNITY_SERVICE.fetch === "function") {
           upstream = await env.UNITY_SERVICE.fetch(new Request(new URL("/health", request.url), { method: "GET", signal: AbortSignal.timeout(10000) }));
         } else {
-          const base = String(env.UNITY_API_URL || "").trim().replace(/\\/+$/, "");
-          if (!base || !/^https:\\/\\//i.test(base)) return json({ ok: true, connected: false, reason: "not_configured" }, 200, origin);
+          const base = String(env.UNITY_API_URL || "").trim().replace(/\/+$/, "");
+          if (!base || !/^https:\/\//i.test(base)) return json({ ok: true, connected: false, reason: "not_configured" }, 200, origin);
           upstream = await fetch(base + "/health", { signal: AbortSignal.timeout(10000) });
         }
         const data = await upstream.json().catch(() => ({}));
@@ -230,8 +230,8 @@ export default {
         if (env.UNITY_SERVICE && typeof env.UNITY_SERVICE.fetch === "function") {
           upstream = await env.UNITY_SERVICE.fetch(new Request(new URL("/api/unity-precedents/search?q=" + encodeURIComponent(q), request.url), { method: "GET", signal: AbortSignal.timeout(15000) }));
         } else {
-          const base = String(env.UNITY_API_URL || "").trim().replace(/\\/+$/, "");
-          if (!base || !/^https:\\/\\//i.test(base)) return json({ ok: false, error: "سرویس بانک آرای وحدت رویه متصل نیست." }, 503, origin);
+          const base = String(env.UNITY_API_URL || "").trim().replace(/\/+$/, "");
+          if (!base || !/^https:\/\//i.test(base)) return json({ ok: false, error: "سرویس بانک آرای وحدت رویه متصل نیست." }, 503, origin);
           upstream = await fetch(base + "/api/unity-precedents/search?q=" + encodeURIComponent(q), { signal: AbortSignal.timeout(15000) });
         }
         return new Response(upstream.body, { status: upstream.status, headers: { "Content-Type": upstream.headers.get("Content-Type") || "application/json; charset=utf-8", "Cache-Control": "no-store", "Access-Control-Allow-Origin": origin, "Vary": "Origin" } });
@@ -254,8 +254,8 @@ export default {
           });
           upstream = await env.UNITY_SERVICE.fetch(internalRequest);
         } else {
-          const base = String(env.UNITY_API_URL || "").trim().replace(/\\/+$/, "");
-          if (!base || !/^https:\\/\\//i.test(base)) {
+          const base = String(env.UNITY_API_URL || "").trim().replace(/\/+$/, "");
+          if (!base || !/^https:\/\//i.test(base)) {
             return json({ ok: false, error: "اتصال امن به سرویس مستقل بانک آرای وحدت رویه هنوز برقرار نشده است." }, 503, origin);
           }
           upstream = await fetch(base + "/api/unity-precedents/ask", {
