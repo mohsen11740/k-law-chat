@@ -30,3 +30,31 @@ jobs:
           apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
           accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
           command: deploy
+      - name: End-to-end Unity AI analysis through all public entry points
+        shell: bash
+        run: |
+          set -euo pipefail
+          payload='{"question":"تحلیل حقوقی رأی وحدت رویه شماره ۸۷۲ را ارائه کن. ابتدا موضوع و نتیجه رأی را از متن ثبت‌شده استخراج کن و وضعیت تأیید رسمی منبع را صریح اعلام کن. اگر منبع رسمی تأیید نشده، آن را رسمی یا تأییدشده معرفی نکن.","precedent_id":"unity-872-1404-09-11"}'
+          for base in \
+            "https://k-law-shared-core.mohsen11740.workers.dev" \
+            "https://k-law-chat.mohsen11740.workers.dev" \
+            "https://k-law-vakil.mohsen11740.workers.dev"; do
+            echo "Testing POST $base/api/unity-precedents/ask"
+            response="$(curl --silent --show-error --fail-with-body --max-time 100 \
+              -H 'Content-Type: application/json' \
+              -X POST "$base/api/unity-precedents/ask" \
+              --data "$payload")"
+            printf '%s' "$response" | node -e '
+              let s="";
+              process.stdin.on("data",d=>s+=d);
+              process.stdin.on("end",()=>{
+                let x;
+                try{x=JSON.parse(s)}catch(e){console.error("Invalid JSON response");process.exit(1)}
+                if(!x.ok){console.error(x.error||"API returned ok=false");process.exit(1)}
+                const answer=String(x.analysis||x.text||"").trim();
+                if(answer.length<80){console.error("AI analysis is empty or too short");process.exit(1)}
+                if(!Array.isArray(x.precedents)||!x.precedents.length){console.error("Precedent metadata missing");process.exit(1)}
+                if(x.precedents.some(p=>p.source_verified!==false)){console.error("Expected explicit unverified source metadata");process.exit(1)}
+                console.log(JSON.stringify({ok:x.ok,provider:x.provider,model:x.model,analysis_chars:answer.length,precedent_count:x.precedents.length,source_verified:x.precedents[0].source_verified}));
+              });'
+          done
