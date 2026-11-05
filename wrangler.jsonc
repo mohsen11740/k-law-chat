@@ -10,5 +10,13 @@
     "not_found_handling": "404-page",
     "run_worker_first": true
   },
-  "observability": { "enabled": true }
+  "observability": {
+    "enabled": true
+  },
+  "services": [
+    {
+      "binding": "UNITY_SERVICE",
+      "service": "k-law-vakil"
+    }
+  ]
 }
