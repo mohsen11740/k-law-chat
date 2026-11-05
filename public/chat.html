@@ -8,7 +8,7 @@
 :root{--navy:#101a30;--navy2:#1a2a42;--gold:#d6b16a;--cream:#f6f2e9;--ink:#1b2638;--muted:#7d8795;--line:#e7dfd0}
 *{box-sizing:border-box}body{margin:0;background:#e9e6df;color:var(--ink);font-family:Vazirmatn,Tahoma,sans-serif}button,textarea{font:inherit}.shell{height:100dvh;max-width:760px;margin:auto;background:var(--cream);display:flex;flex-direction:column;box-shadow:0 0 50px #101a3010;overflow:hidden}
 header{background:radial-gradient(circle at 0 0,#354761,transparent 45%),linear-gradient(130deg,#101a30,#1b2d45);color:white;padding:15px 17px 18px;position:relative;overflow:hidden;border-radius:0 0 25px 25px}
-.headrow{display:flex;align-items:center;gap:11px;position:relative;z-index:1}.back-home{display:flex;align-items:center;gap:6px;flex-shrink:0;padding:9px 11px;border:1px solid #d6b16a;border-radius:11px;background:#ffffff12;color:#f5e4bd;text-decoration:none;font-size:11px;font-weight:800;white-space:nowrap}.back-home span{font-size:10px}.logo{height:43px;width:43px;display:grid;place-items:center;border:1px solid var(--gold);border-radius:14px;color:var(--gold);font-size:23px;background:#ffffff08}.brand{flex:1}.brand strong{display:block;font-size:17px}.brand small{display:block;color:#c3ccda;font-size:10px;margin-top:3px}.online{font-size:10px;color:#d6e7d6;display:flex;align-items:center;gap:5px}.online:before{content:'';width:7px;height:7px;border-radius:50%;background:#9ac69a;box-shadow:0 0 10px #9ac69a}
+.headrow{display:flex;align-items:center;gap:11px;position:relative;z-index:1}.back-home{display:flex;align-items:center;gap:6px;flex-shrink:0;padding:9px 11px;border:1px solid #d6b16a;border-radius:11px;background:#ffffff12;color:#f5e4bd;text-decoration:none;font-size:11px;font-weight:800;white-space:nowrap}.back-home span{font-size:10px}.logo{height:43px;width:43px;display:grid;place-items:center;border:1px solid var(--gold);border-radius:14px;color:var(--gold);font-size:23px;background:#ffffff08}.brand{flex:1}.brand strong{display:block;font-size:17px}.brand small{display:block;color:#c3ccda;font-size:10px;margin-top:3px}.online{font-size:10px;color:#d6e7d6;display:flex;align-items:center;gap:5px;white-space:nowrap;transition:color .2s}.online:before{content:'';width:7px;height:7px;border-radius:50%;background:#9ac69a;box-shadow:0 0 10px #9ac69a;flex-shrink:0}.online.is-offline{color:#ffc0c0}.online.is-offline:before{background:#ef6464;box-shadow:0 0 10px #ef6464}.online.is-checking{color:#f0d69c}.online.is-checking:before{background:#d6b16a;box-shadow:0 0 8px #d6b16a}
 .intro{padding:19px 18px 8px}.eyebrow{font-size:10px;color:#9b7939;font-weight:700;letter-spacing:.2px}.intro h1{font-size:20px;line-height:1.7;margin:5px 0;color:var(--navy)}.intro p{font-size:11px;line-height:2;color:#687486;margin:0}
 .suggestions{display:flex;gap:8px;overflow-x:auto;padding:10px 18px 14px;scrollbar-width:none}.suggestions button{white-space:nowrap;border:1px solid #dfd2b5;background:#fffdf8;color:#4a4b4c;border-radius:20px;padding:9px 12px;font-size:10px;flex-shrink:0}.suggestions button:active{background:#f0e2bf}
 .messages{flex:1;overflow:auto;padding:8px 16px 16px;display:flex;flex-direction:column;gap:13px;overscroll-behavior:contain}.msg{max-width:90%;display:flex;gap:8px;align-items:flex-start;animation:rise .22s ease-out}.msg.user{align-self:flex-start;flex-direction:row-reverse}.msg.ai{align-self:flex-end}.avatar{width:30px;height:30px;border-radius:11px;display:grid;place-items:center;flex-shrink:0;background:#e5d4ab;color:#3b3322;font-size:14px}.user .avatar{background:#dfe5ed;color:#23344c}.bubble{border:1px solid var(--line);background:white;border-radius:16px 5px 16px 16px;padding:12px 13px;font-size:12px;line-height:2;white-space:pre-wrap;overflow-wrap:anywhere;box-shadow:0 4px 14px #101a3008}.answer-tools{display:flex;justify-content:flex-start;margin-top:7px}.copy-answer{border:1px solid #e4d5b5;background:#fffaf0;color:#66512b;border-radius:9px;padding:5px 10px;font-size:10px;cursor:pointer}.copy-answer:active{background:#f3e5c6}.copy-answer:focus-visible{outline:2px solid #b9934b;outline-offset:2px}.user .bubble{background:#e6ebf1;border-color:#d7dee7;border-radius:5px 16px 16px 16px}.typing{display:flex;gap:4px;padding:5px}.typing i{width:5px;height:5px;background:#ad8a47;border-radius:50%;animation:pulse .8s infinite alternate}.typing i:nth-child(2){animation-delay:.2s}.typing i:nth-child(3){animation-delay:.4s}
@@ -18,7 +18,7 @@ header{background:radial-gradient(circle at 0 0,#354761,transparent 45%),linear-
 @keyframes rise{from{opacity:0;transform:translateY(5px)}to{opacity:1;transform:translateY(0)}}@keyframes pulse{to{opacity:.25;transform:translateY(-2px)}}
 @media(min-width:600px){body{padding:20px 0}.shell{height:calc(100dvh - 40px);border-radius:26px}header{border-radius:26px}.intro{padding-top:24px}.messages{padding-left:25px;padding-right:25px}.composer-wrap{padding-left:22px;padding-right:22px}}
 </style></head><body><div class="shell">
-<header><div class="headrow"><a class="back-home" href="/" aria-label="بازگشت به صفحه اصلی">⌂ <span>بازگشت به صفحه اصلی</span></a><div class="logo">✧</div><div class="brand"><strong>K-Law | هم‌فکر حقوقی</strong><small>گفت‌وگو برای روشن‌تر شدن مسیر حقوقی شما</small></div><span class="online">آماده گفت‌وگو</span></div></header>
+<header><div class="headrow"><a class="back-home" href="/" aria-label="بازگشت به صفحه اصلی">⌂ <span>بازگشت به صفحه اصلی</span></a><div class="logo">✧</div><div class="brand"><strong>K-Law | هم‌فکر حقوقی</strong><small>گفت‌وگو برای روشن‌تر شدن مسیر حقوقی شما</small></div><span class="online is-checking" id="connectionStatus" role="status" aria-live="polite">در حال بررسی اتصال…</span></div></header>
 <section class="intro"><span class="eyebrow">یک گفت‌وگو، یک قدم روشن‌تر</span><h1>چه موضوعی ذهنت را درگیر کرده؟</h1><p>مسئله‌ات را با زبان خودت بگو. با هم جزئیات را مرتب می‌کنیم و راه‌های قابل بررسی را پیدا می‌کنیم.</p></section>
 <div class="suggestions" id="suggestions"><button>قراردادم را بررسی کنم</button><button>برای پرونده‌ام چه کنم؟</button><button>یک اظهارنامه می‌خواهم</button><button>ماده قانونی مرتبط چیست؟</button></div>
 <section class="messages" id="messages" aria-live="polite"><div class="msg ai"><div class="avatar">✧</div><div class="bubble">سلام! به دستیار هوشمند K-Law خوش آمدید. 🌿<br><br>من اینجا هستم تا به پرسش‌های حقوقی شما کمک کنم. موضوع یا پرسشتان را به زبان ساده بنویسید. اگر تاریخ، مبلغ، جزئیات ماجرا یا متن سندی دارید، آن‌ها را هم اضافه کنید تا بتوانم دقیق‌تر راهنمایی‌تان کنم.</div></div></section>
@@ -26,6 +26,27 @@ header{background:radial-gradient(circle at 0 0,#354761,transparent 45%),linear-
 </div>
 <script>
 const messages=document.getElementById('messages'),input=document.getElementById('prompt'),send=document.getElementById('send'),form=document.getElementById('chatForm');let history=[];
+const connectionStatus=document.getElementById('connectionStatus');
+function setConnectionStatus(connected,checking=false){
+ connectionStatus.classList.toggle('is-offline',!connected&&!checking);
+ connectionStatus.classList.toggle('is-checking',checking);
+ connectionStatus.textContent=checking?'در حال بررسی اتصال…':connected?'آماده گفتگو':'در حال خواب';
+ connectionStatus.setAttribute('aria-label',connected?'اتصال به 1AI برقرار است':checking?'در حال بررسی اتصال به 1AI':'اتصال به 1AI برقرار نیست');
+}
+let statusCheckInProgress=false;
+async function checkOneAIConnection(){
+ if(statusCheckInProgress||document.hidden)return;
+ statusCheckInProgress=true;
+ try{
+  const response=await fetch('/api/status',{method:'GET',cache:'no-store',signal:AbortSignal.timeout(10000)});
+  const result=await response.json().catch(()=>({}));
+  setConnectionStatus(response.ok&&result.connected===true);
+ }catch{setConnectionStatus(false)}
+ finally{statusCheckInProgress=false}
+}
+checkOneAIConnection();
+setInterval(checkOneAIConnection,45000);
+document.addEventListener('visibilitychange',()=>{if(!document.hidden)checkOneAIConnection()});
 const recordButton=document.getElementById('recordAudio'),recorderPanel=document.getElementById('recorderPanel'),recordWave=document.getElementById('recordWave'),recordTimer=document.getElementById('recordTimer'),stopRecordingButton=document.getElementById('stopRecording'),cancelRecordingButton=document.getElementById('cancelRecording');
 let recorderStream=null,recorder=null,recorderChunks=[],recorderAudioContext=null,recorderAnalyser=null,recorderAnimation=0,recorderStartedAt=0,recorderClock=null,discardRecording=false,recordingBusy=false;
 const recorderCanvas=recordWave.getContext('2d');
