@@ -206,13 +206,42 @@ export default {
     }
 
     if (url.pathname === "/api/unity-precedents/ask" && request.method === "POST") {
-      const base = String(env.UNITY_API_URL || "").trim().replace(/\/+$/, "");
-      if (!base || !/^https:\/\//i.test(base)) return json({ ok: false, error: "سرویس مستقل بانک آرای وحدت رویه هنوز به چت متصل نشده است." }, 503, origin);
       try {
         const payload = await request.json();
-        const upstream = await fetch(base + "/api/unity-precedents/ask", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(payload), signal: AbortSignal.timeout(90000) });
-        return new Response(upstream.body, { status: upstream.status, headers: { "Content-Type": upstream.headers.get("Content-Type") || "application/json; charset=utf-8", "Cache-Control": "no-store", "Access-Control-Allow-Origin": origin, "Vary": "Origin" } });
-      } catch { return json({ ok: false, error: "ارتباط با سرویس بانک آرای وحدت رویه برقرار نشد." }, 502, origin); }
+        const body = JSON.stringify(payload);
+        let upstream;
+        if (env.UNITY_SERVICE && typeof env.UNITY_SERVICE.fetch === "function") {
+          const internalRequest = new Request(new URL("/api/unity-precedents/ask", request.url), {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body,
+            signal: AbortSignal.timeout(90000)
+          });
+          upstream = await env.UNITY_SERVICE.fetch(internalRequest);
+        } else {
+          const base = String(env.UNITY_API_URL || "").trim().replace(/\\/+$/, "");
+          if (!base || !/^https:\\/\\//i.test(base)) {
+            return json({ ok: false, error: "اتصال امن به سرویس مستقل بانک آرای وحدت رویه هنوز برقرار نشده است." }, 503, origin);
+          }
+          upstream = await fetch(base + "/api/unity-precedents/ask", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body,
+            signal: AbortSignal.timeout(90000)
+          });
+        }
+        return new Response(upstream.body, {
+          status: upstream.status,
+          headers: {
+            "Content-Type": upstream.headers.get("Content-Type") || "application/json; charset=utf-8",
+            "Cache-Control": "no-store",
+            "Access-Control-Allow-Origin": origin,
+            "Vary": "Origin"
+          }
+        });
+      } catch {
+        return json({ ok: false, error: "ارتباط با سرویس بانک آرای وحدت رویه برقرار نشد." }, 502, origin);
+      }
     }
 
     if (url.pathname.startsWith("/api/")) return json({ ok: false, error: "مسیر API پیدا نشد." }, 404, origin);
