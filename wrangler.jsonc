@@ -16,7 +16,7 @@
   "services": [
     {
       "binding": "UNITY_SERVICE",
-      "service": "k-law-vakil"
+      "service": "k-law-shared-core"
     }
   ]
 }
