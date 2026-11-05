@@ -185,7 +185,7 @@ export default {
     }
 
     if (url.pathname === "/api/unity-precedents/ask" && request.method === "POST") {
-      const base = String(env.UNITY_API_URL || "").trim().replace(/\\/$/, "");
+      const base = String(env.UNITY_API_URL || "").trim().replace(/\/+$/, "");
       if (!base || !/^https:\/\//i.test(base)) return json({ ok: false, error: "سرویس مستقل بانک آرای وحدت رویه هنوز به چت متصل نشده است." }, 503, origin);
       try {
         const payload = await request.json();
