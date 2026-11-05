@@ -144,6 +144,27 @@ export default {
     if (url.pathname === "/health" && request.method === "GET") {
       return json({ ok: true, service: "k-law-chat", version: VERSION, provider: "1AI", model: AI_MODEL, api_key_configured: !!String(env.ONEAI_API_KEY || "").trim() }, 200, origin);
     }
+    if (url.pathname === "/api/status" && request.method === "GET") {
+      if (!String(env.ONEAI_API_KEY || "").trim()) {
+        return json({ ok: true, connected: false, provider: "1AI", reason: "configuration" }, 200, origin);
+      }
+      try {
+        const controller = new AbortController();
+        const timeout = setTimeout(() => controller.abort("status timeout"), 8000);
+        try {
+          const upstream = await fetch("https://1ai.ir/v1/models", {
+            method: "GET",
+            headers: { "Authorization": "Bearer " + String(env.ONEAI_API_KEY).trim(), "Accept": "application/json" },
+            signal: controller.signal
+          });
+          return json({ ok: true, connected: upstream.ok, provider: "1AI" }, 200, origin);
+        } finally {
+          clearTimeout(timeout);
+        }
+      } catch {
+        return json({ ok: true, connected: false, provider: "1AI", reason: "network" }, 200, origin);
+      }
+    }
     if (url.pathname === "/api/chat" && request.method === "POST") return handleChat(request, env);
 
     if (url.pathname === "/api/media-image" && request.method === "POST") {
