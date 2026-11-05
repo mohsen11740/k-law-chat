@@ -145,6 +145,55 @@ export default {
       return json({ ok: true, service: "k-law-chat", version: VERSION, provider: "1AI", model: AI_MODEL, api_key_configured: !!String(env.ONEAI_API_KEY || "").trim() }, 200, origin);
     }
     if (url.pathname === "/api/chat" && request.method === "POST") return handleChat(request, env);
+
+    if (url.pathname === "/api/media-image" && request.method === "POST") {
+      let body;
+      try { body = await request.json(); } catch { return json({ ok: false, error: "درخواست تصویر معتبر نیست." }, 400, origin); }
+      const image = typeof body?.image === "string" ? body.image : "";
+      const prompt = typeof body?.prompt === "string" ? body.prompt.slice(0, 12000) : "این تصویر را دقیق بررسی کن و درباره موارد ناخوانا حدس نزن.";
+      if (!/^data:image\/(png|jpeg|webp|gif);base64,[A-Za-z0-9+/=]+$/.test(image)) return json({ ok: false, error: "فرمت تصویر معتبر نیست." }, 400, origin);
+      if (image.length > 8000000) return json({ ok: false, error: "حجم تصویر بیش از حد مجاز است." }, 413, origin);
+      if (!env.ONEAI_API_KEY) return json({ ok: false, error: "کلید سرویس چت تنظیم نشده است." }, 503, origin);
+      try {
+        const upstream = await fetch(AI_URL, { method: "POST", headers: { "Authorization": "Bearer " + String(env.ONEAI_API_KEY).trim(), "Content-Type": "application/json" }, body: JSON.stringify({ model: AI_MODEL, messages: [{ role: "system", content: SYSTEM_PROMPT }, { role: "user", content: [{ type: "text", text: prompt }, { type: "image_url", image_url: { url: image, detail: "high" } }] }], reasoning_effort: "low", max_completion_tokens: 4096 }), signal: AbortSignal.timeout(55000) });
+        const data = await upstream.json().catch(() => ({}));
+        const answer = extractText(data);
+        if (!upstream.ok || !answer) return json({ ok: false, error: "تحلیل تصویر ناموفق بود.", provider_status: upstream.status }, 502, origin);
+        return json({ ok: true, text: answer, provider: "1AI", model: AI_MODEL }, 200, origin);
+      } catch { return json({ ok: false, error: "ارتباط برای تحلیل تصویر برقرار نشد." }, 502, origin); }
+    }
+
+    if (url.pathname === "/api/media-audio" && request.method === "POST") {
+      if (!env.ONEAI_API_KEY) return json({ ok: false, error: "کلید سرویس چت تنظیم نشده است." }, 503, origin);
+      const form = await request.formData().catch(() => null);
+      const file = form?.get("file");
+      if (!(file instanceof File)) return json({ ok: false, error: "فایل صوتی ارسال نشده است." }, 400, origin);
+      if (file.size < 1 || file.size > 20 * 1024 * 1024) return json({ ok: false, error: "حجم فایل صوتی باید حداکثر ۲۰ مگابایت باشد." }, 413, origin);
+      const payload = new FormData();
+      payload.append("file", file, file.name || "audio-file");
+      payload.append("model", String(env.ONEAI_AUDIO_MODEL || "openai/whisper-1"));
+      payload.append("language", "fa");
+      payload.append("response_format", "json");
+      try {
+        const upstream = await fetch("https://1ai.ir/v1/audio/transcriptions", { method: "POST", headers: { "Authorization": "Bearer " + String(env.ONEAI_API_KEY).trim() }, body: payload, signal: AbortSignal.timeout(60000) });
+        const data = await upstream.json().catch(() => ({}));
+        if (!upstream.ok) return json({ ok: false, error: "تبدیل صوت به متن ناموفق بود.", provider_status: upstream.status, provider_message: String(data?.error?.message || data?.message || "").slice(0, 500) }, 502, origin);
+        const transcript = String(data.text || "").trim();
+        if (!transcript) return json({ ok: false, error: "متنی از فایل صوتی دریافت نشد." }, 502, origin);
+        return json({ ok: true, text: transcript, provider: "1AI" }, 200, origin);
+      } catch { return json({ ok: false, error: "ارتباط برای تبدیل صوت برقرار نشد." }, 502, origin); }
+    }
+
+    if (url.pathname === "/api/unity-precedents/ask" && request.method === "POST") {
+      const base = String(env.UNITY_API_URL || "").trim().replace(/\\/$/, "");
+      if (!base || !/^https:\/\//i.test(base)) return json({ ok: false, error: "سرویس مستقل بانک آرای وحدت رویه هنوز به چت متصل نشده است." }, 503, origin);
+      try {
+        const payload = await request.json();
+        const upstream = await fetch(base + "/api/unity-precedents/ask", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(payload), signal: AbortSignal.timeout(90000) });
+        return new Response(upstream.body, { status: upstream.status, headers: { "Content-Type": upstream.headers.get("Content-Type") || "application/json; charset=utf-8", "Cache-Control": "no-store", "Access-Control-Allow-Origin": origin, "Vary": "Origin" } });
+      } catch { return json({ ok: false, error: "ارتباط با سرویس بانک آرای وحدت رویه برقرار نشد." }, 502, origin); }
+    }
+
     if (url.pathname.startsWith("/api/")) return json({ ok: false, error: "مسیر API پیدا نشد." }, 404, origin);
     if (env.ASSETS) return env.ASSETS.fetch(request);
     return new Response("K-Law Chat service is running.", { headers: { "Content-Type": "text/plain; charset=utf-8" } });
