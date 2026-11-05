@@ -205,6 +205,41 @@ export default {
       } catch { return json({ ok: false, error: "ارتباط برای تبدیل صوت برقرار نشد." }, 502, origin); }
     }
 
+    if (url.pathname === "/api/unity-precedents/status" && request.method === "GET") {
+      try {
+        let upstream;
+        if (env.UNITY_SERVICE && typeof env.UNITY_SERVICE.fetch === "function") {
+          upstream = await env.UNITY_SERVICE.fetch(new Request(new URL("/health", request.url), { method: "GET", signal: AbortSignal.timeout(10000) }));
+        } else {
+          const base = String(env.UNITY_API_URL || "").trim().replace(/\\/+$/, "");
+          if (!base || !/^https:\\/\\//i.test(base)) return json({ ok: true, connected: false, reason: "not_configured" }, 200, origin);
+          upstream = await fetch(base + "/health", { signal: AbortSignal.timeout(10000) });
+        }
+        const data = await upstream.json().catch(() => ({}));
+        return json({ ok: true, connected: upstream.ok && data?.ok === true && data?.unity_precedents_database_configured === true, service: "unity-precedents", database_configured: data?.unity_precedents_database_configured === true }, 200, origin);
+      } catch {
+        return json({ ok: true, connected: false, service: "unity-precedents", reason: "upstream_unavailable" }, 200, origin);
+      }
+    }
+
+    if (url.pathname === "/api/unity-precedents/search" && request.method === "GET") {
+      const q = String(url.searchParams.get("q") || "").trim();
+      if (!q || q.length > 300) return json({ ok: false, error: "عبارت جست‌وجو نامعتبر است." }, 400, origin);
+      try {
+        let upstream;
+        if (env.UNITY_SERVICE && typeof env.UNITY_SERVICE.fetch === "function") {
+          upstream = await env.UNITY_SERVICE.fetch(new Request(new URL("/api/unity-precedents/search?q=" + encodeURIComponent(q), request.url), { method: "GET", signal: AbortSignal.timeout(15000) }));
+        } else {
+          const base = String(env.UNITY_API_URL || "").trim().replace(/\\/+$/, "");
+          if (!base || !/^https:\\/\\//i.test(base)) return json({ ok: false, error: "سرویس بانک آرای وحدت رویه متصل نیست." }, 503, origin);
+          upstream = await fetch(base + "/api/unity-precedents/search?q=" + encodeURIComponent(q), { signal: AbortSignal.timeout(15000) });
+        }
+        return new Response(upstream.body, { status: upstream.status, headers: { "Content-Type": upstream.headers.get("Content-Type") || "application/json; charset=utf-8", "Cache-Control": "no-store", "Access-Control-Allow-Origin": origin, "Vary": "Origin" } });
+      } catch {
+        return json({ ok: false, error: "ارتباط با بانک آرای وحدت رویه برقرار نشد." }, 502, origin);
+      }
+    }
+
     if (url.pathname === "/api/unity-precedents/ask" && request.method === "POST") {
       try {
         const payload = await request.json();
